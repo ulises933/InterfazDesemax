@@ -85,7 +85,7 @@ app.put('/api/MacAddress', async (req, res) => {
         const response = await axios.put('http://ng.desecloud.com/desemax_apitest/api/v1/cpes', req.body, config);
         res.status(response.status).send(response.data);
     } catch (error) {
-        res.status(error.response ? error.response.status : 500).send({ message: 'Error al procesar la solicitud', error: error.message });
+        res.status(error.response ? error.response.status : 500).send({ message: 'Error al procesar la solicitud', error: response.data });
     }
 });
 // Ruta para agregar cuentas
@@ -119,7 +119,7 @@ app.put('/api/accounts', async (req, res) => {
     }
 });
 
-app.delete('/api/accounts', async (req, res) => {
+app.delete('/api/accounts/:id', async (req, res) => {
     try {
         const config = {
             headers: {
@@ -127,12 +127,13 @@ app.delete('/api/accounts', async (req, res) => {
                 'Cookie': `auth=${authToken}`
             }
         };
-        const response = await axios.delete('http://ng.desecloud.com/desemax_apitest/api/v1/accounts', req.body, config);
+        const response = await axios.delete(`http://ng.desecloud.com/desemax_apitest/api/v1/accounts/${req.params.id}`, config);
         res.status(response.status).send(response.data);
     } catch (error) {
-        res.status(error.response ? error.response.status : 500).send({ message: 'Error al crear la cuenta', error: error.message });
+        res.status(error.response ? error.response.status : 500).send({ message: 'Error al eliminar la cuenta', error: error.message });
     }
 });
+
 
 app.listen(3000, () => {
     console.log('Servidor intermediario corriendo en el puerto 3000');

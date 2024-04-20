@@ -55,9 +55,14 @@ async function processRows(rows) {
             await suspenderCommand(row);
         } else if (row.Comando === 'reactivar') {
             await reactivarCommand(row);
+            
         }else if (row.Comando === 'borrar' || row.Comando === 'borrartodo') {
             await borrarCommand(row);
+            
+        }else if(row.Comando === 'campaq'){
+            await CompaqCommand(row)
         }
+    
         
     }
 }
@@ -185,14 +190,10 @@ async function accountSuspender(row, config4){
 
     try {
         const response = await axios.put(`${config.apiBaseUrl2}/accounts`, data2, config4);
-        if (response.status === 201) {
+        if (response.status === 200) {
              await sql.query`EXEC [UpdateAccountDesemax] ${row.account_id}, 0, 0, 0,0, 0, 0,1`;
-            // const rows2 = resultado.recordset;
-            // if (rows2.length > 0 && rows2[0].resultado === 1) {  // Asegurarse de acceder correctamente al resultado.
-            //     await sql.query`EXEC [ModificaComandoDesemax] '', 'Cliente Activado', '${row.MacAddress}', ${row.Consecutivo}`;
-            // } else {
-            //     console.log('Operación no realizada'); // Usar console.log o console.error según el caso.
-            // }
+             await sql.query`EXEC [ModificaComandoDesemax] '', 'Cliente Suspendido', '${row.MacAddress}', ${row.Consecutivo}`;
+            
         }
     } catch (error) {
         console.error('Error al suspender cuenta:', error);
@@ -240,14 +241,10 @@ async function accountReactivar(row, config4){
 
     try {
         const response = await axios.put(`${config.apiBaseUrl2}/accounts`, data2, config4);
-        if (response.status === 201) {
+        if (response.status === 200) {
             await sql.query`EXEC [UpdateAccountDesemax] ${row.account_id}, 0, 0, 0,0, 0, 1,1`;
-            // const rows2 = resultado.recordset;
-            // if (rows2.length > 0 && rows2[0].resultado === 1) {  // Asegurarse de acceder correctamente al resultado.
-            //     await sql.query`EXEC [ModificaComandoDesemax] '', 'Cliente Activado', '${row.MacAddress}', ${row.Consecutivo}`;
-            // } else {
-            //     console.log('Operación no realizada'); // Usar console.log o console.error según el caso.
-            // }
+                await sql.query`EXEC [ModificaComandoDesemax] '', 'Cliente Reactivado', '${row.MacAddress}', ${row.Consecutivo}`;
+            
         }
     } catch (error) {
         console.error('Error al reactivar cuenta:', error);
@@ -257,7 +254,7 @@ async function accountReactivar(row, config4){
 // ------------------------------ FIN reactivarCommand ---------------------------------------------------------------------------------------------
 
 // ------------------------------ INICIO Borrar ---------------------------------------------------------------------------------------------
-async function suspenderCommand(row) {
+async function borrarCommand(row) {
     const data = qs.stringify({
         data: '{"username":"test_softtv", "password": "grcirck52sxca"}'
     });
@@ -282,38 +279,99 @@ async function suspenderCommand(row) {
                 withCredentials: true
             };
             console.log(config4)
-            await accountSuspender(row, config4);
+            await QuitarMac(row, config4);
         }
     } catch (error) {
         console.error('Error en la activación:', error);
     }
 }
 
-async function accountSuspender(row, config4){
+async function accountBorrar(row, config4){
     const data2 = qs.stringify({
         data: `{"id":${row.account_id},"enabled":false}`
     });
 
     try {
-        const response = await axios.put(`${config.apiBaseUrl2}/accounts`, data2, config4);
-        if (response.status === 201) {
-            const resultado = await sql.query`EXEC [UpdateAccountDesemax] ${row.account_id}, 0, 0, 0,0, 0, 0,1`;
-            // const rows2 = resultado.recordset;
-            // if (rows2.length > 0 && rows2[0].resultado === 1) {  // Asegurarse de acceder correctamente al resultado.
-            //     await sql.query`EXEC [ModificaComandoDesemax] '', 'Cliente Activado', '${row.MacAddress}', ${row.Consecutivo}`;
-            // } else {
-            //     console.log('Operación no realizada'); // Usar console.log o console.error según el caso.
-            // }
+        const response = await axios.delete(`${config.apiBaseUrl2}/accounts/${row.account_id}`, config4);
+        if (response.status === 200) {
+            
+            const resultado=await sql.query`EXEC [UpdateAccountDesemax] ${row.account_id}, 0, 0, 0,0, 0, 0,3`;
+               await sql.query`EXEC [ModificaComandoDesemax] '', 'Cliente Borrado', '${row.MacAddress}', ${row.Consecutivo}`;
+            
         }
     } catch (error) {
         console.error('Error al crear cuenta:', error);
     }
 }
+async function QuitarMac(row, config4){
+    const data2 = qs.stringify({
+        data: `{"mac_address":"${row.MacAddress}","customer":null}`
+    });
+
+    try {
+        const response = await axios.put(`${config.apiBaseUrl2}/MacAddress`, data2,config4);
+        if (response.status === 200) {
+            console.log('si jala')
+            accountBorrar(row, config4)
+
+        }
+    } catch (error) {
+        console.error('Error al crear cuenta:', error);
+    }
+
+}
 
 // ------------------------------ FIN BORRAR ---------------------------------------------------------------------------------------------
 
 // ------------------------------ INICIO COMPAQ ---------------------------------------------------------------------------------------------
+async function CompaqCommand(row) {
+    const data = qs.stringify({
+        data: '{"username":"test_softtv", "password": "grcirck52sxca"}'
+    });
+    const config3 = {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        withCredentials: true
+    };
 
+    try {
+        const response = await axios.post(`${config.apiBaseUrl2}/login`, data, config3);
+        console.log('respuesta:', response.data);
+        if (response.status === 200) {
+            const auth = 'auth=' + response.data.auth;
+            
+            const config4 = {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    //  'Cookie': auth
+                },
+                withCredentials: true
+            };
+            console.log(config4)
+            await accountCompaq(row, config4);
+        }
+    } catch (error) {
+        console.error('Error en la activación:', error);
+    }
+}
+
+async function accountCompaq(row, config4){
+    const data2 = qs.stringify({
+        data: `{"id":${row.account_id},"enabled":true, "profile":${row.profile_id}, "net":${row.idNet}}`
+    });
+
+    try {
+        const response = await axios.put(`${config.apiBaseUrl2}/accounts`, data2, config4);
+        if (response.status === 200) {
+            await sql.query`EXEC [UpdateAccountDesemax] ${row.account_id}, 0, 0, 0,${row.idNet}, ${row.profile_id}, 1,2`;
+                await sql.query`EXEC [ModificaComandoDesemax] '', 'Compaq Exitoso', '${row.MacAddress}', ${row.Consecutivo}`;
+            
+        }
+    } catch (error) {
+        console.error('Error al reactivar cuenta:', error);
+    }
+}
 
 // ------------------------------ FIN COMPAQ ---------------------------------------------------------------------------------------------
 
