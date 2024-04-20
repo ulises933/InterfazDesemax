@@ -1,0 +1,14 @@
+{
+    "apiBaseUrl": "http://ng.desecloud.com/desemax_apitest/api/v1",
+    "apiBaseUrl2": "http://localhost:3000/api",
+    "apiU":"test_softtv",
+    "apiP":"test_softtv",
+    "dbConfig": {
+      "user": "sa",
+      "password": "0601x-2L",
+      "server": "192.168.50.241\\lab16",
+      "port":0,
+      "database": "NewsoftvWEB"
+    }
+  }
+  
