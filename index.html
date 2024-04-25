@@ -2,15 +2,50 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Mi App Electron</title>
-  
+  <title>Modulo iptv</title>
+  <link rel="stylesheet" href="estilos/estilos.css">
 </head>
 <body>
-  <h1>Inicio y comandos procesados</h1>
-  <button id="start">Iniciar</button>
+  <div id="botones">
+  <h1 style="color: aliceblue;">Inicio y comandos procesados</h1>
+  <button id="start" >Iniciar</button>
   <button id="stop">Detener</button>
   <button id="close">Cerrar</button>
+  <!--<button id="login">Iniciar sesión</button>-->
+  <h2 style="color: aliceblue;">Comandos</h2>
+  <div class="inputBx">
+  <button id="activar">Activar</button>
+  
+  <button id="Reactivar">Reactivar</button>
+  <button id="Borrar_todo">Borrar todo</button>
+</div>
+  <button id="suspender"> Suspender</button>
+  <button id="campaq">Campaq</button>
+  <button id="smartcardlist">Lista smartcards</button>
+</div>
+ <!--ring div starts here-->
+
+<div class="ring">
+  <i style="--clr:#00ff0a;"></i>
+  <i style="--clr:#ff0057;"></i>
+  <i style="--clr:#fffd44;"></i>
+  <div class="login">
+    <h2>Modulo</h2>
+   <!-- <div class="inputBx">
+      <input type="text" placeholder="Username">
+    </div>
+    <div class="inputBx">
+      <input type="password" placeholder="Password">
+    </div>
+    <div class="inputBx">
+      <input type="submit" value="Iniciar sesion">
+    </div>-->
+    <button id="login" class="inputBx">Iniciar sesión</button>
+
+   
+  </div>
+</div>
+
   <script src="render.js"></script>
- 
 </body>
 </html>
