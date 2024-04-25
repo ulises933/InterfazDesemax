@@ -28,8 +28,262 @@ async function initializeDatabase() {
     }
 }
 
-initializeDatabase();
+// initializeDatabase();
 
+let sessionId = 'sin sesion';
+// BOTON DE LOGIN
+document.getElementById("login").addEventListener('click',()=>{
+    const arg ={
+        apiToken:"uQPfdaqNgZkCnAFjORIg",
+        login:"vcn_test",
+        password:"Yabnet2024!"
+    }
+    url = config.soapUrl;
+    try{
+        soap.createClient(url,function(err,cliente){
+            if(err) console.log("vamos mal",err);
+            cliente.cvLogin(arg,function(err, result){
+                if(err) console.log(err);
+                sessionId= result.return.$value
+                console.log(sessionId)
+                // Verificar si el inicio de sesión fue exitoso
+                if (sessionId) {
+                    // Si es exitoso, mostrar los botones
+                     document.getElementById("botones").style.display = 'block';
+                      // Y ocultar el div de login
+                  document.querySelector('.ring').style.display = 'none';
+                }
+
+
+            })
+        })
+    }catch(err){
+        console.log('no jalo', err)
+    }
+    
+})
+
+// Ocultar los botones al inicio
+document.getElementById("botones").style.display = 'none';
+// Asegurarse de que el div de login esté visible al inicio
+//document.querySelector('.ring').style.display = 'block';
+
+// BOTON DE smartcardlist
+document.getElementById("smartcardlist").addEventListener('click',()=>{
+    console.log("boton smart sesionid:",sessionId)
+    const arg ={
+        sessionId:sessionId,
+        mode:"",
+        offset:1,
+        limit:10,
+        orderBy:"sn",
+        orderDir:"ASC",
+        filters:""
+    }
+    url = config.soapUrl;
+    try{
+        soap.createClient(url,function(err,cliente){
+            if(err) console.log("vamos mal",err);
+            cliente.cvGetListOfSmartcards(arg,function(err, result){
+                if(err) console.log(err);
+                console.log(result)
+            })
+        })
+    }catch(err){
+        console.log('no jalo', err)
+    }
+    
+})
+
+//Boton de Activar
+document.getElementById("activar").addEventListener('click',()=>{
+        comandoActivar()  
+    
+})
+async function comandoActivar(){
+    try{
+        await cvAddSubscriber()
+    }catch(err){
+        console.log("no jalo",err)
+    }
+}
+async function cvAddSubscriber(){
+    const args ={
+        sessionId:sessionId,
+        subscriber:{
+            code:"101010",
+            hcId:"10101010",
+            supervisor:"Lalo",
+            lastName:"Garza",
+            firstName:"Lalo",
+            comment:"Esto es una prueba",
+            technicalNotes:null,
+            countryCode:"US",
+            contacts:{
+                contactId:101010,
+                type:"email",
+                isBusiness:false,
+                contact:"admin@gmail.com"
+            }
+
+        }
+
+
+    }  
+    url = config.soapUrl;
+    try{
+        soap.createClient(url,function(err,cliente){
+            if(err) console.log("vamos mal",err);
+            cliente.cvAddSubscriber(args,function(err, result){
+                if(err) console.log(err);
+                console.log(result)
+            })
+        })
+    }catch(err){
+        console.log('paso 1', err)
+    }
+}
+// Botón de reactivar
+document.getElementById("Reactivar").addEventListener('click', () => {
+    const arg = {
+        sessionId: sessionId,
+        smartcardId: "101010"
+    };
+    url = config.soapUrl;
+
+    try {
+        soap.createClient(url, function(err, cliente) {
+            if (err) {
+                console.error("Error al crear el cliente SOAP:", err);
+                return;
+            }
+            cliente.cvEnableSmartcard(arg, function(err, result) {
+                if (err) {
+                    console.error("Error al llamar a cvEnableSmartcard:", err);
+                } else {
+                    console.log("Resultado de cvEnableSmartcard:", result.return.$value);
+                }
+            });
+        });
+    } catch (err) {
+        console.error('Error al ejecutar el cliente SOAP:', err);
+    }
+});
+
+// Botón de borrar todo
+document.getElementById("Borrar_todo").addEventListener('click', () => {
+    comandoBorrar()
+});
+
+async function comandoBorrar(){
+    try{
+        await cvAddSubscriber()
+    }catch(err){
+        console.log("no jalo",err)
+    }
+}
+async function cvAddSubscriber(){
+    const arg = {
+        sessionId: sessionId,
+        smartcardId: "101010"
+    };
+    url = config.soapUrl;
+
+    try {
+        soap.createClient(url, function(err, cliente) {
+            if (err) {
+                console.error("Error al crear el cliente SOAP:", err);
+                return;
+            }
+            cliente.cvRemoveSmartcardFromSubscriber(arg, function(err, result) {
+                if (err) {
+                    console.error("Error al llamar a cvRemoveSmartcardFromSubscriber:", err);
+                } else {
+                    console.log("Resultado de cvRemoveSmartcardFromSubscriber:", result.return.$value);
+                    cvDeleteSubscriber()
+                }
+            });
+        });
+    } catch (err) {
+        console.error('Error al ejecutar el cliente SOAP:', err);
+    }
+}
+
+async function cvDeleteSubscriber(){
+    const arg = {
+        sessionId: sessionId,
+        code: "codigo_del_suscriptor"
+    };
+    url = config.soapUrl;
+
+    try {
+        soap.createClient(url, function(err, cliente) {
+            if (err) {
+                console.error("Error al crear el cliente SOAP:", err);
+                return;
+            }
+            cliente.cvDeleteSubscriber(arg, function(err, result) {
+                if (err) {
+                    console.error("Error al llamar a cvDeleteSubscriber:", err);
+                } else {
+                    console.log("Resultado de cvDeleteSubscriber:", result.return.$value);
+                }
+            });
+        });
+    } catch (err) {
+        console.error('Error al ejecutar el cliente SOAP:', err);
+    }
+}
+
+
+//Boton de suspender
+document.getElementById("suspender").addEventListener('click', () => {
+    const arg = {
+        sessionId: sessionId,
+        smartcardId: "10101010"
+    };
+    url = config.soapUrl;
+
+    try {
+        soap.createClient(url, function(err, cliente) {
+            if (err) {
+                console.error("Error al crear el cliente SOAP:", err);
+                return;
+            }
+            cliente.cvDisableSmartcard(arg, function(err, result) {
+                if (err) {
+                    console.error("Error al llamar a cvDisableSmartcard:", err);
+                } else {
+                    console.log("Resultado de cvDisableSmartcard:", result.return.$value);
+                }
+            });
+        });
+    } catch (err) {
+        console.error('Error al ejecutar el cliente SOAP:', err);
+    }
+});
+
+//Boton de Campaq
+document.getElementById("campaq").addEventListener('click',()=>{
+    const arg ={
+        apiToken:"uQPfdaqNgZkCnAFjORIg",
+        login:"vcn_test",
+        password:"Yabnet2024!"
+    }
+    url = config.soapUrl;
+    try{
+        soap.createClient(url,function(err,cliente){
+            if(err) console.log("vamos mal",err);
+            cliente.cvLogin(arg,function(err, result){
+                if(err) console.log(err);
+                console.log(result.return.$value)
+            })
+        })
+    }catch(err){
+        console.log('no jalo', err)
+    }
+    
+})
 let keepRunning = false;
 async function fetchAndProcess() {
     while (keepRunning) {
